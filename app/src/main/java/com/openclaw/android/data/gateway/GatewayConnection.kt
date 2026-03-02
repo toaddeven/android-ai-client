@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import okhttp3.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
@@ -15,7 +14,8 @@ import javax.inject.Singleton
 class GatewayConnection @Inject constructor(
     private val gson: Gson
 ) {
-    private var webSocket: WebSocket? = null
+    private var webSocket: WebSocketClient? = null
+    
     private val _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
     
@@ -64,7 +64,7 @@ class GatewayConnection @Inject constructor(
             val wsUrl = gatewayUrl.replace("http", "ws") + "/ws"
             val uri = URI("$wsUrl?token=$authToken&deviceId=$deviceId")
             
-            val client = object : WebSocketClient(uri) {
+            webSocket = object : WebSocketClient(uri) {
                 override fun onOpen(handshake: ServerHandshake) {
                     _connectionState.value = ConnectionState.Connected
                 }
@@ -82,8 +82,7 @@ class GatewayConnection @Inject constructor(
                 }
             }
             
-            webSocket = client
-            client.connect()
+            webSocket?.connect()
             
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e.message ?: "Connection failed")
@@ -97,47 +96,43 @@ class GatewayConnection @Inject constructor(
     }
     
     fun sendMessage(content: String, replyTo: String? = null) {
-        val message = JsonObject().apply {
-            addProperty("id", generateId())
-            addProperty("type", "message")
-            addProperty("content", content)
-            replyTo?.let { addProperty("replyTo", it) }
-        }
-        webSocket?.send(gson.toJson(message))
+        val message = JsonObject()
+        message.addProperty("id", generateId())
+        message.addProperty("type", "message")
+        message.addProperty("content", content)
+        replyTo?.let { message.addProperty("replyTo", it) }
+        webSocket?.send(message.toString())
     }
     
     fun sendToolRequest(tool: String, params: Map<String, Any>) {
-        val request = JsonObject().apply {
-            addProperty("id", generateId())
-            addProperty("type", "tool")
-            addProperty("tool", tool)
-            add("params", gson.toJsonTree(params))
-        }
-        webSocket?.send(gson.toJson(request))
+        val request = JsonObject()
+        request.addProperty("id", generateId())
+        request.addProperty("type", "tool")
+        request.addProperty("tool", tool)
+        request.add("params", gson.toJsonTree(params))
+        webSocket?.send(request.toString())
     }
     
     private fun handleMessage(message: String) {
         try {
             val json = gson.fromJson(message, JsonObject::class.java)
-            val type = json.get("type")?.asString ?: return
+            val msgType = json.get("type")?.asString ?: return
             
-            when (type) {
-                "message" -> {
-                    val msg = Message(
-                        id = json.get("id")?.asString ?: generateId(),
-                        content = json.get("content")?.asString ?: "",
-                        timestamp = json.get("timestamp")?.asLong ?: System.currentTimeMillis()
-                    )
-                    _messages.tryEmit(msg)
-                }
-                "response", "tool_response" -> {
-                    val response = Response(
-                        id = json.get("id")?.asString ?: "",
-                        type = type,
-                        data = json
-                    )
-                    _responses.tryEmit(response)
-                }
+            if (msgType == "message") {
+                val msg = Message(
+                    id = json.get("id")?.asString ?: generateId(),
+                    type = msgType,
+                    content = json.get("content")?.asString ?: "",
+                    timestamp = json.get("timestamp")?.asLong ?: System.currentTimeMillis()
+                )
+                _messages.tryEmit(msg)
+            } else if (msgType == "response" || msgType == "tool_response") {
+                val response = Response(
+                    id = json.get("id")?.asString ?: "",
+                    type = msgType,
+                    data = json
+                )
+                _responses.tryEmit(response)
             }
         } catch (e: Exception) {
             // Handle parse error

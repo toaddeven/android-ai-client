@@ -1,9 +1,9 @@
 package com.openclaw.android.ui
 
 import android.os.Bundle
-import
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
- androidx.activity.ComponentActivityimport androidx.activity.enableEdgeToEdge
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface

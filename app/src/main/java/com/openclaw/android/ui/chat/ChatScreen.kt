@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.openclaw.android.data.gateway.GatewayConnection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

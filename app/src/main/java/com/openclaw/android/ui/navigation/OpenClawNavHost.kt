@@ -5,7 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ViewCanvas
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -35,7 +35,7 @@ data class BottomNavItem(
 val bottomNavItems = listOf(
     BottomNavItem(Screen.Chat, Icons.Default.Chat, "Chat"),
     BottomNavItem(Screen.Voice, Icons.Default.Mic, "Voice"),
-    BottomNavItem(Screen.Canvas, Icons.Default.ViewCanvas, "Canvas"),
+    BottomNavItem(Screen.Canvas, Icons.Default.Dashboard, "Canvas"),
     BottomNavItem(Screen.Settings, Icons.Default.Settings, "Settings")
 )
 

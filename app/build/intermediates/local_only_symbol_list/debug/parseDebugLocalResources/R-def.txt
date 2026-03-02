@@ -1,0 +1,11 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color openclaw_blue
+color openclaw_dark
+color openclaw_surface
+color white
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+style Theme.OpenClaw

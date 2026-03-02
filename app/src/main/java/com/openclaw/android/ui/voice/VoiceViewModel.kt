@@ -5,16 +5,13 @@ import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import okhttp3.*
 import java.io.File
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,10 +35,6 @@ class VoiceViewModel @Inject constructor(
     private val sampleRate = 16000
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-    
-    private val client = OkHttpClient.Builder()
-        .readTimeout(60, TimeUnit.SECONDS)
-        .build()
     
     fun toggleListening() {
         if (_isListening.value) {
@@ -80,9 +73,6 @@ class VoiceViewModel @Inject constructor(
                     }
                     val rms = Math.sqrt(sum / read)
                     _audioLevel.value = (rms / 32768).toFloat()
-                    
-                    // Send to speech-to-text service
-                    // In production, integrate with OpenAI Whisper or similar
                 }
             }
         }
@@ -108,6 +98,5 @@ class VoiceViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopListening()
-        client.dispatcher.executorService.shutdown()
     }
 }

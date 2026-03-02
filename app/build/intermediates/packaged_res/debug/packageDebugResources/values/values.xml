@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="openclaw_blue">#00D9FF</color>
+    <color name="openclaw_dark">#1A1A2E</color>
+    <color name="openclaw_surface">#16213E</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">OpenClaw</string>
+    <style name="Theme.OpenClaw" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/openclaw_dark</item>
+        <item name="android:navigationBarColor">@color/openclaw_dark</item>
+    </style>
+</resources>
